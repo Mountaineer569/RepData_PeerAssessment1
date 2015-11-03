@@ -1,6 +1,6 @@
 # Reproducible Research - Project 1
 ### script: PA1.R
-### created Oct-2015
+### created November 2015
 
 # Load libraries.
 library(plyr)
@@ -12,7 +12,7 @@ path <- "C:/Users/Robert/Documents/Coursera/R/Reproducible"
 list.files("/repdata_data_activity")
 
 # 1. Load the data.
-activity <- read.csv("C:/Users/Robert/Documents/Coursera/R/Reproducible/repdata_data_activity/activity.csv",
+activity <- read.csv(paste(path,"repdata_data_activity/activity.csv",sep = "/"),
         header=TRUE, sep=",", stringsAsFactor=FALSE, na.strings="NA")
 
 # 2. Format Date and Time fields.
@@ -33,16 +33,13 @@ daystats <- ddply(activity, .(date), summarize,
 head(daystats)
 
 # 2. Histogram of the total number of steps taken each day.
-# Red line is the mean.
-plot(daystats$date, daystats$daysum
-     , type="h"
+hist(daystats$daysum 
+     , breaks = 10 
      , main="Steps Taken Per Day"
-     , xlab="Date"
-     , ylab="Steps"
+     , xlab="Steps"
+     , ylab="Frequency"
      , col="blue"
-     , lwd=2
 )
-abline(h=mean(daystats$daysum, na.rm=TRUE), col="red", lwd=2)
 
 # 3. Report the mean and median total number of steps taken per day.
 paste("Mean steps taken per day = ", round(mean(daystats$daysum, na.rm=TRUE),2))
@@ -69,9 +66,7 @@ intstats[maxsteps,]
 
 ### Imputing missing values
 # 1. Calculate and report the total number of missing values in the dataset.
-any(is.na(activity$steps))
-sum(is.na(activity$steps))
-
+paste(sum(is.na(activity$steps)),"missing values for variable steps.")
 
 # 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
 activitynona <- merge(activity, intstats, by = "interval")
@@ -87,16 +82,13 @@ daystatsnona <- ddply(activitynona, .(date), summarize,
                       daymedian = round(median(steps, na.rm = TRUE),1))
 
 # 4a. Make a histogram of the total number of steps taken each day with NAs imputed.
-# Red line is the mean.
-plot(daystatsnona$date, daystatsnona$daysum
-     , type="h"
+hist(daystatsnona$daysum
+     , breaks = 10
      , main="Steps Taken Per Day with NAs Imputed"
-     , xlab="Date"
-     , ylab="Steps per Day"
+     , xlab="Steps per Day"
+     , ylab="Frequency"
      , col="blue"
-     , lwd=2
 )
-abline(h=mean(daystatsnona$daysum, na.rm=TRUE), col="red", lwd=2)
 
 # 4b. Report the mean and median total number of steps taken per day.
 paste("Mean steps taken per day = ", round(mean(daystatsnona$daysum),2))
@@ -123,9 +115,10 @@ daycatstats <- ddply(activity4, .(interval,daycat), summarize,
                   daycatmean = round(mean(steps, na.rm = TRUE),1))
 
 library(lattice)
-xyplot(daycatsum~interval|daycat, daycatstats 
-       ,type="l"
-       ,xlab="Interval" 
-       ,ylab="Number of steps"
-       ,layout=(c(1,2))
-       )
+xyplot(daycatmean~interval|daycat, daycatstats
+    ,type="l"
+    ,main = "Activity Patterns between weekdays and weekends"
+    ,xlab="Interval" 
+    ,ylab="Average # of steps"
+    ,layout=(c(1,2))
+)

@@ -1,15 +1,11 @@
 # PA1_template.Rmd
 Mountaineer569  
-October 18, 2015  
+November 8, 2015  
 
 Load libraries.
 
 ```r
 library(plyr)
-```
-
-```
-## Warning: package 'plyr' was built under R version 3.2.2
 ```
 
 ### Loading and preprocessing the data.
@@ -28,7 +24,7 @@ list.files("C:/Users/Robert/Documents/Coursera/R/Reproducible/repdata_data_activ
 1. Load the data.
 
 ```r
-activity <- read.csv("C:/Users/Robert/Documents/Coursera/R/Reproducible/repdata_data_activity/activity.csv",
+activity <- read.csv(paste(path,"repdata_data_activity/activity.csv",sep = "/"),
         header=TRUE, sep=",", stringsAsFactor=FALSE, na.strings="NA")
 ```
 
@@ -83,13 +79,31 @@ head(daystats)
 ```
 
 2. Histogram of the total number of steps taken each day.
-Red line is the mean.
+
+```r
+hist(daystats$daysum 
+     , breaks = 10 
+     , main="Steps Taken Per Day"
+     , xlab="Steps"
+     , ylab="Frequency"
+     , col="blue"
+)
+```
+
 ![](PA1_template_files/figure-html/unnamed-chunk-9-1.png) 
 
 3. Report the mean and median total number of steps taken per day.
 
+```r
+paste("Mean steps taken per day = ", round(mean(daystats$daysum, na.rm=TRUE),2))
+```
+
 ```
 ## [1] "Mean steps taken per day =  9354.23"
+```
+
+```r
+paste("Median steps taken per day = ", median(daystats$daysum, na.rm=TRUE))
 ```
 
 ```
@@ -105,13 +119,31 @@ intstats <- ddply(activity, .(interval), summarize,
                  intsum = sum(steps, na.rm = TRUE),
                  intmean = round(mean(steps, na.rm = TRUE),1))
 ```
+
+```r
+plot.ts(intstats$interval, intstats$intmean 
+        ,type="l" 
+        ,xlab="5 minute interval" 
+        ,ylab="average steps taken"
+        ,main="Average Steps Taken per Interval")
+```
+
 ![](PA1_template_files/figure-html/unnamed-chunk-12-1.png) 
 
 2. Which 5-minute interval, on average across all the days in the dataset, 
 contains the maximum number of steps?
 
+```r
+maxsteps <- which(intstats$intmean == max(intstats$intmean))
+paste("Which 5-minute interval contains the maximum number of steps?")
+```
+
 ```
 ## [1] "Which 5-minute interval contains the maximum number of steps?"
+```
+
+```r
+intstats[maxsteps,]
 ```
 
 ```
@@ -123,19 +155,11 @@ contains the maximum number of steps?
 1. Calculate and report the total number of missing values in the dataset.
 
 ```r
-any(is.na(activity$steps))
+paste(sum(is.na(activity$steps)),"missing values for variable steps.")
 ```
 
 ```
-## [1] TRUE
-```
-
-```r
-sum(is.na(activity$steps))
-```
-
-```
-## [1] 2304
+## [1] "2304 missing values for variable steps."
 ```
 
 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.  
@@ -160,13 +184,31 @@ daystatsnona <- ddply(activitynona, .(date), summarize,
 ```
 
 4a. Make a histogram of the total number of steps taken each day with NAs imputed.
-Red line is the mean.
+
+```r
+hist(daystatsnona$daysum
+     , breaks = 10
+     , main="Steps Taken Per Day with NAs Imputed"
+     , xlab="Steps per Day"
+     , ylab="Frequency"
+     , col="blue"
+)
+```
+
 ![](PA1_template_files/figure-html/unnamed-chunk-18-1.png) 
 
 4b. Report the mean and median total number of steps taken per day.
 
+```r
+paste("Mean steps taken per day = ", round(mean(daystatsnona$daysum),2))
+```
+
 ```
 ## [1] "Mean steps taken per day =  10766.19"
+```
+
+```r
+paste("Median steps taken per day = ", median(daystatsnona$daysum))
 ```
 
 ```
@@ -175,10 +217,19 @@ Red line is the mean.
 4c. Do these values differ from the estimates from the first part of the assignment?
 identical(daystats, daystatsnona)
 
+```r
+paste("The imputed data set is not identical (FALSE) to the original.")
+```
+
 ```
 ## [1] "The imputed data set is not identical (FALSE) to the original."
 ```
 4d. What is the impact of imputing missing data on the estimates of the total daily number of steps?
+
+```r
+paste("Imputing values increased(decreased) the average daily steps by ",
+      round(mean(daystats$daysum),2) - round(mean(daystatsnona$daysum),2))
+```
 
 ```
 ## [1] "Imputing values increased(decreased) the average daily steps by  -1411.96"
@@ -206,4 +257,15 @@ daycatstats <- ddply(activity4, .(interval,daycat), summarize,
 
 library(lattice)
 ```
+
+```r
+xyplot(daycatmean~interval|daycat, daycatstats
+    ,type="l"
+    ,main = "Activity Patterns between weekdays and weekends"
+    ,xlab="Interval" 
+    ,ylab="Average # of steps"
+    ,layout=(c(1,2))
+)
+```
+
 ![](PA1_template_files/figure-html/unnamed-chunk-24-1.png) 
