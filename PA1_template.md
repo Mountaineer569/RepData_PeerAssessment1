@@ -1,6 +1,6 @@
 # PA1_template.Rmd
 Mountaineer569  
-November 8, 2015  
+November 15, 2015  
 
 Load libraries.
 
@@ -21,14 +21,14 @@ list.files("C:/Users/Robert/Documents/Coursera/R/Reproducible/repdata_data_activ
 ## [1] "activity.csv"
 ```
 
-1. Load the data.
+*1. Load the data.
 
 ```r
 activity <- read.csv(paste(path,"repdata_data_activity/activity.csv",sep = "/"),
         header=TRUE, sep=",", stringsAsFactor=FALSE, na.strings="NA")
 ```
 
-2. Format Date and Time fields.
+*2. Format Date and Time fields.
 
 ```r
 activity$date <- strptime(activity$date, format = "%Y-%m-%d")
@@ -52,7 +52,7 @@ summary(activity)
 ```
 
 ### What is mean total number of steps taken per day?
-1. Calculate the total number of steps, mean and median of the total number of steps taken per day.
+*1. Calculate the total number of steps, mean and median of the total number of steps taken per day.
 Ignore the missing values.
 Note the use of the '.' function to allow variables to be used without quoting.
 
@@ -78,7 +78,7 @@ head(daystats)
 ## 6 2012-10-06  15420    53.5         0
 ```
 
-2. Histogram of the total number of steps taken each day.
+*2. Histogram of the total number of steps taken each day.
 
 ```r
 hist(daystats$daysum 
@@ -92,7 +92,7 @@ hist(daystats$daysum
 
 ![](PA1_template_files/figure-html/unnamed-chunk-9-1.png) 
 
-3. Report the mean and median total number of steps taken per day.
+*3. Report the mean and median total number of steps taken per day.
 
 ```r
 paste("Mean steps taken per day = ", round(mean(daystats$daysum, na.rm=TRUE),2))
@@ -111,7 +111,7 @@ paste("Median steps taken per day = ", median(daystats$daysum, na.rm=TRUE))
 ```
 
 ### What is the average daily activity pattern?
-1. Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and 
+*1. Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and 
 the average number of steps taken, averaged across all days (y-axis).
 
 ```r
@@ -130,7 +130,7 @@ plot.ts(intstats$interval, intstats$intmean
 
 ![](PA1_template_files/figure-html/unnamed-chunk-12-1.png) 
 
-2. Which 5-minute interval, on average across all the days in the dataset, 
+*2. Which 5-minute interval, on average across all the days in the dataset, 
 contains the maximum number of steps?
 
 ```r
@@ -152,7 +152,7 @@ intstats[maxsteps,]
 ```
 
 ### Imputing missing values
-1. Calculate and report the total number of missing values in the dataset.
+*1. Calculate and report the total number of missing values in the dataset.
 
 ```r
 paste(sum(is.na(activity$steps)),"missing values for variable steps.")
@@ -162,19 +162,19 @@ paste(sum(is.na(activity$steps)),"missing values for variable steps.")
 ## [1] "2304 missing values for variable steps."
 ```
 
-3. Create a new dataset that is equal to the original dataset but with the missing data filled in.  
+*3. Create a new dataset that is equal to the original dataset but with the missing data filled in.  
 
 ```r
 activitynona <- merge(activity, intstats, by = "interval")
 ```
-2. Fill in missing values with daily average
+*2. Fill in missing values with the __interval average across all days__.
 
 ```r
 activitynona$steps[is.na(activitynona$steps)] <-  
     activitynona$intmean[is.na(activitynona$steps)]
 ```
 
-Calculate statistics of steps taken per day, imputed values, for later use.
+Calculate statistics of steps taken per day with imputed values, for later use.
 
 ```r
 daystatsnona <- ddply(activitynona, .(date), summarize, 
@@ -183,7 +183,7 @@ daystatsnona <- ddply(activitynona, .(date), summarize,
                       daymedian = round(median(steps, na.rm = TRUE),1))
 ```
 
-4a. Make a histogram of the total number of steps taken each day with NAs imputed.
+*4a. Make a histogram of the total number of steps taken each day with NAs imputed.
 
 ```r
 hist(daystatsnona$daysum
@@ -197,7 +197,7 @@ hist(daystatsnona$daysum
 
 ![](PA1_template_files/figure-html/unnamed-chunk-18-1.png) 
 
-4b. Report the mean and median total number of steps taken per day.
+*4b. Report the mean and median total number of steps taken per day.
 
 ```r
 paste("Mean steps taken per day = ", round(mean(daystatsnona$daysum),2))
@@ -214,21 +214,20 @@ paste("Median steps taken per day = ", median(daystatsnona$daysum))
 ```
 ## [1] "Median steps taken per day =  10766.2"
 ```
-4c. Do these values differ from the estimates from the first part of the assignment?
-identical(daystats, daystatsnona)
+*4c. Do these values differ from the estimates from the first part of the assignment?
 
 ```r
-paste("The imputed data set is not identical (FALSE) to the original.")
+paste("The imputed data set is identical to the original? (T/F)", identical(daystats, daystatsnona))
 ```
 
 ```
-## [1] "The imputed data set is not identical (FALSE) to the original."
+## [1] "The imputed data set is identical to the original? (T/F) FALSE"
 ```
-4d. What is the impact of imputing missing data on the estimates of the total daily number of steps?
+*4d. What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
 ```r
 paste("Imputing values increased(decreased) the average daily steps by ",
-      round(mean(daystats$daysum),2) - round(mean(daystatsnona$daysum),2))
+      round(mean(daystats$daysum) - mean(daystatsnona$daysum),2))
 ```
 
 ```
@@ -236,7 +235,7 @@ paste("Imputing values increased(decreased) the average daily steps by ",
 ```
 
 ### Are there differences in activity patterns between weekdays and weekends?
-1. Create a new factor variable in the dataset with two levels - 
+*1. Create a new factor variable in the dataset with two levels - 
 "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
 
 ```r
@@ -244,10 +243,10 @@ activity3 <- mutate(activitynona, dayofweek = weekdays(activitynona$date))
 activity4 <- mutate(activity3, daycat = ifelse(grepl('^S',activity3$dayofweek)==TRUE,"weekend","weekday"))
 ```
 
-2. Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval
+*2. Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval
 (x-axis) and the average number of steps taken, averaged across all weekday days 
 or weekend days (y-axis).
-Calculate statistics for day category (weekday or weekend). The sum will be used in the graphs.
+Calculate statistics for day category (weekday or weekend). The daily mean will be used in the graph.
 
 ```r
 daycatstats <- ddply(activity4, .(interval,daycat), summarize, 
