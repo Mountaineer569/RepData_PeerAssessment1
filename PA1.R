@@ -1,15 +1,15 @@
 # Reproducible Research - Project 1
 ### script: PA1.R
-### created November 2015
+### created December 2015
+### I attempted an previous session of this course, but did not finish.  There are 
+### previous versions of this assignment on my Github account and all of them are my
+### original work.
 
 # Load libraries.
 library(plyr)
 
 ### Loading and preprocessing the data.
 path <- "C:/Users/Robert/Documents/Coursera/R/Reproducible"
-
-# After downloading and unzipping the data, we get these files.
-list.files("/repdata_data_activity")
 
 # 1. Load the data.
 activity <- read.csv(paste(path,"repdata_data_activity/activity.csv",sep = "/"),
@@ -39,7 +39,10 @@ hist(daystats$daysum
      , xlab="Steps"
      , ylab="Frequency"
      , col="blue"
-)
+     , xaxt="n")
+# add commas to x-axis
+axis(side=1, at=axTicks(1), labels=formatC(axTicks(1), format="d", big.mark=',')) 
+
 
 # 3. Report the mean and median total number of steps taken per day.
 paste("Mean steps taken per day = ", round(mean(daystats$daysum, na.rm=TRUE),2))
@@ -56,12 +59,15 @@ plot.ts(intstats$interval, intstats$intmean
         ,type="l" 
         ,xlab="5 minute interval" 
         ,ylab="average steps taken"
-        ,main="Average Steps Taken per Interval")
+        ,main="Average Steps Taken per Interval"
+        ,xaxt="n")
+# add commas to x-axis
+axis(side=1, at=axTicks(1), labels=formatC(axTicks(1), format="d", big.mark=',')) 
+        
 
 # 2. Which 5-minute interval, on average across all the days in the dataset, 
 # contains the maximum number of steps?
 maxsteps <- which(intstats$intmean == max(intstats$intmean))
-paste("Which 5-minute interval contains the maximum number of steps?")
 intstats[maxsteps,]
 
 ### Imputing missing values
@@ -80,6 +86,7 @@ daystatsnona <- ddply(activitynona, .(date), summarize,
                       daysum = sum(steps, na.rm = TRUE),
                       daymean = round(mean(steps, na.rm = TRUE),1),
                       daymedian = round(median(steps, na.rm = TRUE),1))
+head(daystatsnona)
 
 # 4a. Make a histogram of the total number of steps taken each day with NAs imputed.
 hist(daystatsnona$daysum
@@ -88,14 +95,15 @@ hist(daystatsnona$daysum
      , xlab="Steps per Day"
      , ylab="Frequency"
      , col="blue"
-)
+     , xaxt="n")
+# add commas to x-axis
+axis(side=1, at=axTicks(1), labels=formatC(axTicks(1), format="d", big.mark=',')) 
 
 # 4b. Report the mean and median total number of steps taken per day.
 paste("Mean steps taken per day = ", round(mean(daystatsnona$daysum),2))
 paste("Median steps taken per day = ", median(daystatsnona$daysum))
 # 4c. Do these values differ from the estimates from the first part of the assignment?
-identical(daystats, daystatsnona)
-paste("The imputed data set is not identical (FALSE) to the original.")
+paste("The imputed data set is identical to the original (T/F)?: ", identical(daystats, daystatsnona))
 # 4d. What is the impact of imputing missing data on the estimates of the total daily number of steps?
 paste("Imputing values increased(decreased) the average daily steps by ",
       round(mean(daystats$daysum),2) - round(mean(daystatsnona$daysum),2))

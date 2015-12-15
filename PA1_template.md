@@ -1,6 +1,6 @@
 # PA1_template.Rmd
 Mountaineer569  
-November 15, 2015  
+December 2015  
 
 Load libraries.
 
@@ -10,16 +10,6 @@ library(plyr)
 
 ### Loading and preprocessing the data.
 
-
-After downloading and unzipping the data, we get these files.
-
-```r
-list.files("C:/Users/Robert/Documents/Coursera/R/Reproducible/repdata_data_activity")
-```
-
-```
-## [1] "activity.csv"
-```
 
 *1. Load the data.
 
@@ -52,9 +42,7 @@ summary(activity)
 ```
 
 ### What is mean total number of steps taken per day?
-*1. Calculate the total number of steps, mean and median of the total number of steps taken per day.
-Ignore the missing values.
-Note the use of the '.' function to allow variables to be used without quoting.
+*1. Calculate the total number of steps, mean and median of the total number of steps taken per day. Ignore the missing values. Note the use of the '.' function to allow variables to be used without quoting.
 
 ```r
 daystats <- ddply(activity, .(date), summarize, 
@@ -87,10 +75,11 @@ hist(daystats$daysum
      , xlab="Steps"
      , ylab="Frequency"
      , col="blue"
-)
+     ,xaxt="n")
+axis(side=1, at=axTicks(1), labels=formatC(axTicks(1), format="d", big.mark=',')) #add commas to x-axis
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-9-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png) 
 
 *3. Report the mean and median total number of steps taken per day.
 
@@ -103,7 +92,7 @@ paste("Mean steps taken per day = ", round(mean(daystats$daysum, na.rm=TRUE),2))
 ```
 
 ```r
-paste("Median steps taken per day = ", median(daystats$daysum, na.rm=TRUE))
+paste("Median steps taken per day = ", round(median(daystats$daysum, na.rm=TRUE),2))
 ```
 
 ```
@@ -125,24 +114,18 @@ plot.ts(intstats$interval, intstats$intmean
         ,type="l" 
         ,xlab="5 minute interval" 
         ,ylab="average steps taken"
-        ,main="Average Steps Taken per Interval")
+        ,main="Average Steps Taken per Interval"
+        ,xaxt="n")
+axis(side=1, at=axTicks(1), labels=formatC(axTicks(1), format="d", big.mark=',')) #add commas to x-axis
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-12-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-11-1.png) 
 
 *2. Which 5-minute interval, on average across all the days in the dataset, 
 contains the maximum number of steps?
 
 ```r
 maxsteps <- which(intstats$intmean == max(intstats$intmean))
-paste("Which 5-minute interval contains the maximum number of steps?")
-```
-
-```
-## [1] "Which 5-minute interval contains the maximum number of steps?"
-```
-
-```r
 intstats[maxsteps,]
 ```
 
@@ -181,6 +164,17 @@ daystatsnona <- ddply(activitynona, .(date), summarize,
                       daysum = sum(steps, na.rm = TRUE),
                       daymean = round(mean(steps, na.rm = TRUE),1),
                       daymedian = round(median(steps, na.rm = TRUE),1))
+head(daystatsnona)
+```
+
+```
+##         date  daysum daymean daymedian
+## 1 2012-10-01 10766.2    37.4      34.1
+## 2 2012-10-02   126.0     0.4       0.0
+## 3 2012-10-03 11352.0    39.4       0.0
+## 4 2012-10-04 12116.0    42.1       0.0
+## 5 2012-10-05 13294.0    46.2       0.0
+## 6 2012-10-06 15420.0    53.5       0.0
 ```
 
 *4a. Make a histogram of the total number of steps taken each day with NAs imputed.
@@ -192,10 +186,12 @@ hist(daystatsnona$daysum
      , xlab="Steps per Day"
      , ylab="Frequency"
      , col="blue"
-)
+     , xaxt="n")
+# add commas to x-axis labels
+axis(side=1, at=axTicks(1),labels=formatC(axTicks(1),format="d", big.mark=",")) 
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-18-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-17-1.png) 
 
 *4b. Report the mean and median total number of steps taken per day.
 
@@ -217,11 +213,11 @@ paste("Median steps taken per day = ", median(daystatsnona$daysum))
 *4c. Do these values differ from the estimates from the first part of the assignment?
 
 ```r
-paste("The imputed data set is identical to the original? (T/F)", identical(daystats, daystatsnona))
+paste("The imputed data set is identical to the original (T/F)?: ", identical(daystats, daystatsnona))
 ```
 
 ```
-## [1] "The imputed data set is identical to the original? (T/F) FALSE"
+## [1] "The imputed data set is identical to the original (T/F)?:  FALSE"
 ```
 *4d. What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
@@ -267,4 +263,4 @@ xyplot(daycatmean~interval|daycat, daycatstats
 )
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-24-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-23-1.png) 
