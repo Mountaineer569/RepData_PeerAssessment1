@@ -1,12 +1,6 @@
 # PA1_template.Rmd
 Mountaineer569  
-December 2015  
-
-Load libraries.
-
-```r
-library(plyr)
-```
+January 2016  
 
 ### Loading and preprocessing the data.
 
@@ -14,8 +8,15 @@ library(plyr)
 *1. Load the data.
 
 ```r
-activity <- read.csv(paste(path,"repdata_data_activity/activity.csv",sep = "/"),
-        header=TRUE, sep=",", stringsAsFactor=FALSE, na.strings="NA")
+activity <- read.table(unz("repdata_data_activity.zip", "activity.csv"),header=TRUE, sep=",",na.strings="NA")
+str(activity)
+```
+
+```
+## 'data.frame':	17568 obs. of  3 variables:
+##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
+##  $ date    : Factor w/ 61 levels "2012-10-01","2012-10-02",..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
 ```
 
 *2. Format Date and Time fields.
@@ -45,6 +46,7 @@ summary(activity)
 *1. Calculate the total number of steps, mean and median of the total number of steps taken per day. Ignore the missing values. Note the use of the '.' function to allow variables to be used without quoting.
 
 ```r
+library(plyr)
 daystats <- ddply(activity, .(date), summarize, 
                   daysum = sum(steps, na.rm = TRUE),
                   daymean = round(mean(steps, na.rm = TRUE),1),
@@ -79,7 +81,7 @@ hist(daystats$daysum
 axis(side=1, at=axTicks(1), labels=formatC(axTicks(1), format="d", big.mark=',')) #add commas to x-axis
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-8-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png) 
 
 *3. Report the mean and median total number of steps taken per day.
 
@@ -112,14 +114,13 @@ intstats <- ddply(activity, .(interval), summarize,
 ```r
 plot.ts(intstats$interval, intstats$intmean 
         ,type="l" 
-        ,xlab="5 minute interval" 
+        ,xlab="5 minute interval HH:MM" 
         ,ylab="average steps taken"
         ,main="Average Steps Taken per Interval"
-        ,xaxt="n")
-axis(side=1, at=axTicks(1), labels=formatC(axTicks(1), format="d", big.mark=',')) #add commas to x-axis
+)
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-11-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-10-1.png) 
 
 *2. Which 5-minute interval, on average across all the days in the dataset, 
 contains the maximum number of steps?
@@ -191,7 +192,7 @@ hist(daystatsnona$daysum
 axis(side=1, at=axTicks(1),labels=formatC(axTicks(1),format="d", big.mark=",")) 
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-17-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-16-1.png) 
 
 *4b. Report the mean and median total number of steps taken per day.
 
@@ -257,10 +258,10 @@ library(lattice)
 xyplot(daycatmean~interval|daycat, daycatstats
     ,type="l"
     ,main = "Activity Patterns between weekdays and weekends"
-    ,xlab="Interval" 
+    ,xlab="5 minute Interval HH:MM" 
     ,ylab="Average # of steps"
     ,layout=(c(1,2))
 )
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-23-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-22-1.png) 

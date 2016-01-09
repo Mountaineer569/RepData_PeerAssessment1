@@ -5,16 +5,13 @@
 ### previous versions of this assignment on my Github account and all of them are my
 ### original work.
 
-# Load libraries.
-library(plyr)
-
 ### Loading and preprocessing the data.
-path <- "C:/Users/Robert/Documents/Coursera/R/Reproducible"
+path <- "C:/Users/Robert/Documents/Coursera/R/Reproducible/Project1c/RepData_PeerAssessment1"
+setwd("C:/Users/Robert/Documents/Coursera/R/Reproducible/Project1c/RepData_PeerAssessment1")
 
 # 1. Load the data.
-activity <- read.csv(paste(path,"repdata_data_activity/activity.csv",sep = "/"),
-        header=TRUE, sep=",", stringsAsFactor=FALSE, na.strings="NA")
-
+activity <- read.table(unz("repdata_data_activity.zip", "activity.csv"),header=TRUE, sep=",",na.strings="NA")
+str(activity)
 # 2. Format Date and Time fields.
 activity$date <- strptime(activity$date, format = "%Y-%m-%d")
 
@@ -25,6 +22,7 @@ summary(activity)
 # 1. Calculate the total number of steps, mean and median of the total number of steps taken per day.
 # Ignore the missing values.
 # Note the use of the '.' function to allow variables to be used without quoting.
+library(plyr)
 daystats <- ddply(activity, .(date), summarize, 
                   daysum = sum(steps, na.rm = TRUE),
                   daymean = round(mean(steps, na.rm = TRUE),1),
@@ -57,13 +55,10 @@ intstats <- ddply(activity, .(interval), summarize,
 
 plot.ts(intstats$interval, intstats$intmean 
         ,type="l" 
-        ,xlab="5 minute interval" 
+        ,xlab="5 minute interval HH:MM" 
         ,ylab="average steps taken"
         ,main="Average Steps Taken per Interval"
-        ,xaxt="n")
-# add commas to x-axis
-axis(side=1, at=axTicks(1), labels=formatC(axTicks(1), format="d", big.mark=',')) 
-        
+)
 
 # 2. Which 5-minute interval, on average across all the days in the dataset, 
 # contains the maximum number of steps?
@@ -126,7 +121,7 @@ library(lattice)
 xyplot(daycatmean~interval|daycat, daycatstats
     ,type="l"
     ,main = "Activity Patterns between weekdays and weekends"
-    ,xlab="Interval" 
+    ,xlab="5 minute Interval HH:MM" 
     ,ylab="Average # of steps"
     ,layout=(c(1,2))
 )
